@@ -2,9 +2,9 @@ const TEAM = ["Sher", "Leila", "Jen", "Shona"];
 const STATUSES = ["Not started", "In preparation", "Waiting for client", "Ready for review", "Review notes", "Approved", "Filed"];
 const storageKey = "tax-desk-returns-v1";
 const sample = [
-  {id:"t1-1",client:"Alex Martin",year:2025,preparer:"Sher",reviewer:"Leila",status:"In preparation",printed:false,deadline:"2026-04-30",notes:"T4 received",updated:"2026-10-06"},
-  {id:"t1-2",client:"Samira Rahman",year:2025,preparer:"Jen",reviewer:"Shona",status:"Ready for review",printed:true,deadline:"2026-04-30",notes:"Review foreign income slip",updated:"2026-10-05"},
-  {id:"t1-3",client:"David Wong",year:2025,preparer:"Sher",reviewer:"Leila",status:"Waiting for client",printed:false,deadline:"2026-04-30",notes:"Awaiting RRSP receipt",updated:"2026-10-04"}
+  {id:"t1-1",client:"Alex Martin",year:2025,office:"Smiths Falls",preparer:"Sher",reviewer:"Leila",status:"In preparation",printed:false,deadline:"2026-04-30",notes:"T4 received",updated:"2026-10-06"},
+  {id:"t1-2",client:"Samira Rahman",year:2025,office:"North York",preparer:"Jen",reviewer:"Shona",status:"Ready for review",printed:true,deadline:"2026-04-30",notes:"Review foreign income slip",updated:"2026-10-05"},
+  {id:"t1-3",client:"David Wong",year:2025,office:"Smiths Falls",preparer:"Sher",reviewer:"Leila",status:"Waiting for client",printed:false,deadline:"2026-04-30",notes:"Awaiting RRSP receipt",updated:"2026-10-04"}
 ];
 let returns = JSON.parse(localStorage.getItem(storageKey) || "null") || sample;
 let currentView = "all";
@@ -15,7 +15,7 @@ function showToast(message){const toast=$("#toast");toast.textContent=message;to
 function render(){
   const q=$("#search").value.toLowerCase().trim();
   const selected=returns.filter(r=>{
-    const matches={all:true,prepare:["Not started","In preparation","Review notes"].includes(r.status),review:r.status==="Ready for review",waiting:r.status==="Waiting for client"}[currentView];
+    const matches={all:true,"smiths-falls":(r.office||"Smiths Falls")==="Smiths Falls","north-york":r.office==="North York",prepare:["Not started","In preparation","Review notes"].includes(r.status),review:r.status==="Ready for review",waiting:r.status==="Waiting for client"}[currentView];
     return matches && [r.client,r.preparer,r.reviewer,r.status].join(" ").toLowerCase().includes(q);
   });
   $("#return-list").innerHTML=selected.map(r=>`<tr><td><span class="client">${escapeHtml(r.client)}</span><span class="small">${r.year} T1</span></td><td>${escapeHtml(r.preparer)}</td><td>${escapeHtml(r.reviewer)}</td><td><span class="pill ${slug(r.status)}">${r.status}</span></td><td title="${r.printed?"Tax return printed":"Not printed"}" style="font-weight:800;font-size:19px;color:${r.printed?"#166534":"#afbbc3"}">${r.printed?"✓":"—"}</td><td>${formatDate(r.deadline)}</td><td>${formatDate(r.updated)}</td><td><button class="row-action" data-id="${r.id}">Open</button></td></tr>`).join("");
@@ -29,11 +29,11 @@ function populateSelect(id,values){$(id).innerHTML=values.map(v=>`<option>${v}</
 function openReturn(record){
   populateSelect("#preparer",TEAM);populateSelect("#reviewer",TEAM);populateSelect("#status",STATUSES);
   $("#dialog-title").textContent=record?"T1 return details":"Add a T1 return";
-  $("#record-id").value=record?.id||"";$("#client-name").value=record?.client||"";$("#tax-year").value=record?.year||2025;$("#preparer").value=record?.preparer||TEAM[0];$("#reviewer").value=record?.reviewer||TEAM[1];$("#status").value=record?.status||"Not started";$("#deadline").value=record?.deadline||"2026-04-30";$("#printed").checked=Boolean(record?.printed);$("#notes").value=record?.notes||"";
+  $("#record-id").value=record?.id||"";$("#client-name").value=record?.client||"";$("#tax-year").value=record?.year||2025;$("#office").value=record?.office||"Smiths Falls";$("#preparer").value=record?.preparer||TEAM[0];$("#reviewer").value=record?.reviewer||TEAM[1];$("#status").value=record?.status||"Not started";$("#deadline").value=record?.deadline||"2026-04-30";$("#printed").checked=Boolean(record?.printed);$("#notes").value=record?.notes||"";
   $("#return-dialog").showModal();
 }
 $("#add-return").addEventListener("click",()=>openReturn());
-$("#return-form").addEventListener("submit",(e)=>{e.preventDefault();const id=$("#record-id").value;const record={id:id||crypto.randomUUID(),client:$("#client-name").value.trim(),year:+$("#tax-year").value,preparer:$("#preparer").value,reviewer:$("#reviewer").value,status:$("#status").value,printed:$("#printed").checked,deadline:$("#deadline").value,notes:$("#notes").value.trim(),updated:new Date().toISOString().slice(0,10)};if(id)returns=returns.map(r=>r.id===id?record:r);else returns=[record,...returns];save();$("#return-dialog").close();render();showToast(id?"T1 return updated":"T1 return added");});
+$("#return-form").addEventListener("submit",(e)=>{e.preventDefault();const id=$("#record-id").value;const record={id:id||crypto.randomUUID(),client:$("#client-name").value.trim(),year:+$("#tax-year").value,office:$("#office").value,preparer:$("#preparer").value,reviewer:$("#reviewer").value,status:$("#status").value,printed:$("#printed").checked,deadline:$("#deadline").value,notes:$("#notes").value.trim(),updated:new Date().toISOString().slice(0,10)};if(id)returns=returns.map(r=>r.id===id?record:r);else returns=[record,...returns];save();$("#return-dialog").close();render();showToast(id?"T1 return updated":"T1 return added");});
 $("#return-list").addEventListener("click",e=>{const id=e.target.dataset.id;if(id)openReturn(returns.find(r=>r.id===id));});
 document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{document.querySelector(".tab.active").classList.remove("active");tab.classList.add("active");currentView=tab.dataset.view;render();}));
 $("#search").addEventListener("input",render);
