@@ -8,6 +8,7 @@ const sample = [
 ];
 let returns = JSON.parse(localStorage.getItem(storageKey) || "null") || sample;
 let currentView = "all";
+let officeFilter = "all";
 const $ = (s) => document.querySelector(s);
 function save(){localStorage.setItem(storageKey,JSON.stringify(returns));}
 function slug(status){return status.toLowerCase().replaceAll(" ","-");}
@@ -15,8 +16,9 @@ function showToast(message){const toast=$("#toast");toast.textContent=message;to
 function render(){
   const q=$("#search").value.toLowerCase().trim();
   const selected=returns.filter(r=>{
-    const matches={all:true,"smiths-falls":(r.office||"Smiths Falls")==="Smiths Falls","north-york":r.office==="North York",prepare:["Not started","In preparation","Review notes"].includes(r.status),review:r.status==="Ready for review",waiting:r.status==="Waiting for client"}[currentView];
-    return matches && [r.client,r.preparer,r.reviewer,r.status].join(" ").toLowerCase().includes(q);
+    const matches={all:true,prepare:["Not started","In preparation","Review notes"].includes(r.status),review:r.status==="Ready for review",waiting:r.status==="Waiting for client"}[currentView];
+    const officeMatches=officeFilter==="all"||(officeFilter==="smiths-falls"&&(r.office||"Smiths Falls")==="Smiths Falls")||(officeFilter==="north-york"&&r.office==="North York");
+    return matches && officeMatches && [r.client,r.preparer,r.reviewer,r.status].join(" ").toLowerCase().includes(q);
   });
   $("#return-list").innerHTML=selected.map(r=>`<tr><td><span class="client">${escapeHtml(r.client)}</span><span class="small">${r.year} T1</span></td><td>${escapeHtml(r.preparer)}</td><td>${escapeHtml(r.reviewer)}</td><td><span class="pill ${slug(r.status)}">${r.status}</span></td><td title="${r.printed?"Tax return printed":"Not printed"}" style="font-weight:800;font-size:19px;color:${r.printed?"#166534":"#afbbc3"}">${r.printed?"✓":"—"}</td><td>${formatDate(r.deadline)}</td><td>${formatDate(r.updated)}</td><td><button class="row-action" data-id="${r.id}">Open</button></td></tr>`).join("");
   $("#empty-state").hidden=selected.length>0;
@@ -35,7 +37,8 @@ function openReturn(record){
 $("#add-return").addEventListener("click",()=>openReturn());
 $("#return-form").addEventListener("submit",(e)=>{e.preventDefault();const id=$("#record-id").value;const record={id:id||crypto.randomUUID(),client:$("#client-name").value.trim(),year:+$("#tax-year").value,office:$("#office").value,preparer:$("#preparer").value,reviewer:$("#reviewer").value,status:$("#status").value,printed:$("#printed").checked,deadline:$("#deadline").value,notes:$("#notes").value.trim(),updated:new Date().toISOString().slice(0,10)};if(id)returns=returns.map(r=>r.id===id?record:r);else returns=[record,...returns];save();$("#return-dialog").close();render();showToast(id?"T1 return updated":"T1 return added");});
 $("#return-list").addEventListener("click",e=>{const id=e.target.dataset.id;if(id)openReturn(returns.find(r=>r.id===id));});
-document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{document.querySelector(".tab.active").classList.remove("active");tab.classList.add("active");currentView=tab.dataset.view;render();}));
+document.querySelectorAll(".tab[data-view]").forEach(tab=>tab.addEventListener("click",()=>{document.querySelector(".tab.active").classList.remove("active");tab.classList.add("active");currentView=tab.dataset.view;render();}));
+$("#office-filter").addEventListener("change",e=>{officeFilter=e.target.value;render();});
 $("#search").addEventListener("input",render);
 $("#file-upload").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;if(!window.XLSX){showToast("Excel importer is not available. Please try again online.");return;}try{const workbook=XLSX.read(await file.arrayBuffer(),{type:"array"});const rows=XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]],{defval:""});const added=rows.map(row=>({id:crypto.randomUUID(),client:String(row["Client name"]||row["Client"]||"").trim(),year:+(row["Tax year"]||row["Year"]||2025),preparer:String(row["Preparer"]||TEAM[0]),reviewer:String(row["Reviewer"]||TEAM[1]),status:STATUSES.includes(row["Current status"]||row["Status"])?(row["Current status"]||row["Status"]):"Not started",deadline:toIso(row["Due date"]||row["Deadline"])||"2026-04-30",notes:String(row["Notes"]||""),updated:new Date().toISOString().slice(0,10)})).filter(r=>r.client);if(!added.length)throw new Error("No client names found");returns=[...added,...returns];save();render();showToast(`${added.length} T1 return${added.length===1?"":"s"} imported`);}catch(error){showToast("Could not import. Use the column headings in the template.");}e.target.value="";});
 function toIso(value){if(value instanceof Date)return value.toISOString().slice(0,10);if(typeof value==="number"&&window.XLSX)return XLSX.SSF.format("yyyy-mm-dd",value);const parsed=new Date(value);return Number.isNaN(parsed.getTime())?"":parsed.toISOString().slice(0,10);}
