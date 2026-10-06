@@ -19,7 +19,7 @@
       </section>
       <section class="metrics" id="metrics"></section>
       <section class="toolbar">
-        <div class="tabs"><button class="tab active" data-view="all">All returns</button><button class="tab" data-view="smiths-falls">Smiths Falls</button><button class="tab" data-view="north-york">North York</button><button class="tab" data-view="prepare">To prepare</button><button class="tab" data-view="review">Review queue</button><button class="tab" data-view="waiting">Waiting for client</button></div>
+        <div class="tabs"><select class="tab" id="office-filter" aria-label="Office list"><option value="all">All offices</option><option value="smiths-falls">Smiths Falls office</option><option value="north-york">North York office</option></select><button class="tab active" data-view="all">All returns</button><button class="tab" data-view="prepare">To prepare</button><button class="tab" data-view="review">Review queue</button><button class="tab" data-view="waiting">Waiting for client</button></div>
         <input class="search" id="search" placeholder="Search client, preparer, reviewer…" />
       </section>
       <section class="table-card">
