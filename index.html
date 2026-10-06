@@ -19,7 +19,7 @@
       </section>
       <section class="metrics" id="metrics"></section>
       <section class="toolbar">
-        <div class="tabs"><button class="tab active" data-view="all">All returns</button><button class="tab" data-view="prepare">To prepare</button><button class="tab" data-view="review">Review queue</button><button class="tab" data-view="waiting">Waiting for client</button></div>
+        <div class="tabs"><button class="tab active" data-view="all">All returns</button><button class="tab" data-view="smiths-falls">Smiths Falls</button><button class="tab" data-view="north-york">North York</button><button class="tab" data-view="prepare">To prepare</button><button class="tab" data-view="review">Review queue</button><button class="tab" data-view="waiting">Waiting for client</button></div>
         <input class="search" id="search" placeholder="Search client, preparer, reviewer…" />
       </section>
       <section class="table-card">
@@ -29,7 +29,7 @@
     </main>
     <dialog id="return-dialog"><form method="dialog" id="return-form"><div class="dialog-head"><div><p class="eyebrow">T1 RETURN</p><h2 id="dialog-title">Add a T1 return</h2></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div>
       <input id="record-id" type="hidden" />
-      <div class="form-grid"><label>Client name<input id="client-name" required placeholder="e.g., Jordan Smith" /></label><label>Tax year<input id="tax-year" type="number" min="2020" max="2100" value="2025" required /></label><label>Preparer<select id="preparer" required></select></label><label>Reviewer<select id="reviewer" required></select></label><label>Status<select id="status"></select></label><label>Filing deadline<input id="deadline" type="date" value="2026-04-30" /></label></div>
+      <div class="form-grid"><label>Client name<input id="client-name" required placeholder="e.g., Jordan Smith" /></label><label>Tax year<input id="tax-year" type="number" min="2020" max="2100" value="2025" required /></label><label>Office<select id="office" required><option>Smiths Falls</option><option>North York</option></select></label><label>Preparer<select id="preparer" required></select></label><label>Reviewer<select id="reviewer" required></select></label><label>Status<select id="status"></select></label><label>Filing deadline<input id="deadline" type="date" value="2026-04-30" /></label></div>
       <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:14px"><input id="printed" type="checkbox" style="width:17px;height:17px;accent-color:#1778d4" /> <span>Tax return printed</span></label>
       <label class="full">Notes / review points<textarea id="notes" placeholder="Missing documents, review notes, or next step…"></textarea></label>
       <div class="dialog-actions"><button class="button secondary" value="cancel">Cancel</button><button class="button" id="save-return" value="default">Save return</button></div>
