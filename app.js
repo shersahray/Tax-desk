@@ -1,6 +1,7 @@
 const TEAM = ["Sher", "Leila", "Jen", "Shona"];
 const STATUSES = ["Not started", "In preparation", "Waiting for client", "Ready for review", "Review notes", "Approved", "Filed"];
 const storageKey = "tax-desk-returns-v1";
+const printPinKey = "tax-desk-print-pin-v1";
 const sample = [
   {id:"t1-1",client:"Alex Martin",year:2025,office:"Smiths Falls",preparer:"Sher",reviewer:"Leila",status:"In preparation",printed:false,deadline:"2026-04-30",notes:"T4 received",updated:"2026-10-06"},
   {id:"t1-2",client:"Samira Rahman",year:2025,office:"North York",preparer:"Jen",reviewer:"Shona",status:"Ready for review",printed:true,deadline:"2026-04-30",notes:"Review foreign income slip",updated:"2026-10-05"},
@@ -11,6 +12,19 @@ let currentView = "all";
 let officeFilter = "all";
 const $ = (s) => document.querySelector(s);
 function save(){localStorage.setItem(storageKey,JSON.stringify(returns));}
+function authorizePrintChange(){
+  let pin=localStorage.getItem(printPinKey);
+  if(!pin){
+    const newPin=window.prompt("Set a 2-digit Print PIN. Only the authorized print person should know it.");
+    if(!/^\d{2}$/.test(newPin||"")){showToast("Enter exactly 2 digits to set the Print PIN.");return false;}
+    const confirmPin=window.prompt("Confirm the 2-digit Print PIN.");
+    if(confirmPin!==newPin){showToast("Print PINs did not match.");return false;}
+    localStorage.setItem(printPinKey,newPin);pin=newPin;
+  }
+  const entered=window.prompt("Enter the 2-digit Print PIN to change this printed status.");
+  if(entered!==pin){showToast("Incorrect Print PIN. No change was saved.");return false;}
+  return true;
+}
 function slug(status){return status.toLowerCase().replaceAll(" ","-");}
 function showToast(message){const toast=$("#toast");toast.textContent=message;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2800);}
 function render(){
@@ -35,7 +49,7 @@ function openReturn(record){
   $("#return-dialog").showModal();
 }
 $("#add-return").addEventListener("click",()=>openReturn());
-$("#return-form").addEventListener("submit",(e)=>{e.preventDefault();const id=$("#record-id").value;const record={id:id||crypto.randomUUID(),client:$("#client-name").value.trim(),year:+$("#tax-year").value,office:$("#office").value,preparer:$("#preparer").value,reviewer:$("#reviewer").value,status:$("#status").value,printed:$("#printed").checked,deadline:$("#deadline").value,notes:$("#notes").value.trim(),updated:new Date().toISOString().slice(0,10)};if(id)returns=returns.map(r=>r.id===id?record:r);else returns=[record,...returns];save();$("#return-dialog").close();render();showToast(id?"T1 return updated":"T1 return added");});
+$("#return-form").addEventListener("submit",(e)=>{e.preventDefault();const id=$("#record-id").value;const previous=returns.find(r=>r.id===id);const printed=$("#printed").checked;if((!previous&&printed)||(previous&&previous.printed!==printed)){if(!authorizePrintChange())return;}const record={id:id||crypto.randomUUID(),client:$("#client-name").value.trim(),year:+$("#tax-year").value,office:$("#office").value,preparer:$("#preparer").value,reviewer:$("#reviewer").value,status:$("#status").value,printed,deadline:$("#deadline").value,notes:$("#notes").value.trim(),updated:new Date().toISOString().slice(0,10)};if(id)returns=returns.map(r=>r.id===id?record:r);else returns=[record,...returns];save();$("#return-dialog").close();render();showToast(id?"T1 return updated":"T1 return added");});
 $("#return-list").addEventListener("click",e=>{const id=e.target.dataset.id;if(id)openReturn(returns.find(r=>r.id===id));});
 document.querySelectorAll(".tab[data-view]").forEach(tab=>tab.addEventListener("click",()=>{document.querySelector(".tab.active").classList.remove("active");tab.classList.add("active");currentView=tab.dataset.view;render();}));
 $("#office-filter").addEventListener("change",e=>{officeFilter=e.target.value;render();});
