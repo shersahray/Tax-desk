@@ -23,13 +23,14 @@
         <input class="search" id="search" placeholder="Search client, preparer, reviewer…" />
       </section>
       <section class="table-card">
-        <div class="table-scroll"><table><thead><tr><th>Client</th><th>Preparer</th><th>Reviewer</th><th>Status</th><th>Deadline</th><th>Last update</th><th></th></tr></thead><tbody id="return-list"></tbody></table></div>
+        <div class="table-scroll"><table><thead><tr><th>Client</th><th>Preparer</th><th>Reviewer</th><th>Status</th><th>Printed</th><th>Deadline</th><th>Last update</th><th></th></tr></thead><tbody id="return-list"></tbody></table></div>
         <p class="empty" id="empty-state" hidden>No returns match this view.</p>
       </section>
     </main>
     <dialog id="return-dialog"><form method="dialog" id="return-form"><div class="dialog-head"><div><p class="eyebrow">T1 RETURN</p><h2 id="dialog-title">Add a T1 return</h2></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div>
       <input id="record-id" type="hidden" />
       <div class="form-grid"><label>Client name<input id="client-name" required placeholder="e.g., Jordan Smith" /></label><label>Tax year<input id="tax-year" type="number" min="2020" max="2100" value="2025" required /></label><label>Preparer<select id="preparer" required></select></label><label>Reviewer<select id="reviewer" required></select></label><label>Status<select id="status"></select></label><label>Filing deadline<input id="deadline" type="date" value="2026-04-30" /></label></div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:14px"><input id="printed" type="checkbox" style="width:17px;height:17px;accent-color:#1778d4" /> <span>Tax return printed</span></label>
       <label class="full">Notes / review points<textarea id="notes" placeholder="Missing documents, review notes, or next step…"></textarea></label>
       <div class="dialog-actions"><button class="button secondary" value="cancel">Cancel</button><button class="button" id="save-return" value="default">Save return</button></div>
     </form></dialog>
