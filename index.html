@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Tax Desk T1 return workflow tracker" />
+    <title>Tax Desk — T1 workflow tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">TD</span><span>Tax Desk</span></div>
+      <div class="year">2025 T1 season</div>
+    </header>
+    <main>
+      <section class="hero">
+        <div><p class="eyebrow">INTERNAL WORKFLOW</p><h1>Keep every T1 moving.</h1><p class="subtitle">Prepare, review, approve, and file—all from one shared desk.</p></div>
+        <div class="actions"><label class="button secondary" for="file-upload">Import Excel / CSV</label><input id="file-upload" type="file" accept=".xlsx,.xls,.csv" hidden /><button class="button" id="add-return">+ Add T1 return</button></div>
+      </section>
+      <section class="metrics" id="metrics"></section>
+      <section class="toolbar">
+        <div class="tabs"><button class="tab active" data-view="all">All returns</button><button class="tab" data-view="prepare">To prepare</button><button class="tab" data-view="review">Review queue</button><button class="tab" data-view="waiting">Waiting for client</button></div>
+        <input class="search" id="search" placeholder="Search client, preparer, reviewer…" />
+      </section>
+      <section class="table-card">
+        <div class="table-scroll"><table><thead><tr><th>Client</th><th>Preparer</th><th>Reviewer</th><th>Status</th><th>Deadline</th><th>Last update</th><th></th></tr></thead><tbody id="return-list"></tbody></table></div>
+        <p class="empty" id="empty-state" hidden>No returns match this view.</p>
+      </section>
+    </main>
+    <dialog id="return-dialog"><form method="dialog" id="return-form"><div class="dialog-head"><div><p class="eyebrow">T1 RETURN</p><h2 id="dialog-title">Add a T1 return</h2></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div>
+      <input id="record-id" type="hidden" />
+      <div class="form-grid"><label>Client name<input id="client-name" required placeholder="e.g., Jordan Smith" /></label><label>Tax year<input id="tax-year" type="number" min="2020" max="2100" value="2025" required /></label><label>Preparer<select id="preparer" required></select></label><label>Reviewer<select id="reviewer" required></select></label><label>Status<select id="status"></select></label><label>Filing deadline<input id="deadline" type="date" value="2026-04-30" /></label></div>
+      <label class="full">Notes / review points<textarea id="notes" placeholder="Missing documents, review notes, or next step…"></textarea></label>
+      <div class="dialog-actions"><button class="button secondary" value="cancel">Cancel</button><button class="button" id="save-return" value="default">Save return</button></div>
+    </form></dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
